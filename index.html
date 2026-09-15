@@ -1,0 +1,443 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Control de inventario, producción y ventas de café" />
+  <title>Café Control</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23291d17'/%3E%3Cellipse cx='32' cy='32' rx='15' ry='22' transform='rotate(35 32 32)' fill='%23c8783a'/%3E%3Cpath d='M24 48c11-9 13-22 16-32' fill='none' stroke='%23291d17' stroke-width='4'/%3E%3C/svg%3E" />
+  <style>
+    :root{--ink:#211915;--coffee:#4b2e22;--cream:#f6f1e9;--paper:#fffdf9;--orange:#d06f2d;--green:#2f6b4f;--muted:#766b65;--line:#e5ddd3;--shadow:0 10px 30px rgba(49,32,22,.08)}
+    *{box-sizing:border-box} body{margin:0;background:var(--cream);color:var(--ink);font:16px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif} button,input,select{font:inherit} button{cursor:pointer}
+    .app{min-height:100vh;display:grid;grid-template-columns:250px 1fr}.sidebar{position:sticky;top:0;height:100vh;background:#291d17;color:#fff;padding:26px 18px;display:flex;flex-direction:column}.brand{display:flex;gap:12px;align-items:center;padding:0 10px 24px}.bean{width:39px;height:48px;border-radius:60% 40% 55% 45%;background:var(--orange);transform:rotate(25deg);position:relative;box-shadow:inset -7px -5px 0 rgba(0,0,0,.12)}.bean:after{content:"";position:absolute;left:19px;top:5px;width:3px;height:38px;background:#291d17;border-radius:5px;transform:rotate(-5deg)}.brand strong{font-size:20px;display:block}.brand small{color:#cdbfb6}.nav{display:grid;gap:5px}.nav button{border:0;background:transparent;color:#d9cec7;text-align:left;padding:12px 13px;border-radius:12px;display:flex;gap:11px;align-items:center}.nav button:hover,.nav button.active{background:#fff;color:var(--coffee)}.nav i{font-style:normal;width:24px;text-align:center}.nav-group{display:grid;gap:4px}.accordion-toggle{justify-content:space-between}.accordion-toggle .nav-label{display:flex;gap:11px;align-items:center}.accordion-toggle .chevron{margin-left:auto;transition:.2s}.nav-group.open .chevron{transform:rotate(90deg)}.subnav{display:none;gap:3px;margin:0 0 4px 35px;padding-left:10px;border-left:1px solid #6b5144}.nav-group.open .subnav{display:grid}.subnav button{font-size:13px;padding:8px 10px;border-radius:9px}.profile{margin-top:auto;border-top:1px solid #503c32;padding:18px 10px 0;color:#d9cec7}.main{padding:28px 34px 90px;min-width:0}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:26px}.eyebrow{margin:0;color:var(--orange);font-weight:800;text-transform:uppercase;font-size:12px;letter-spacing:.12em}.topbar h1{margin:2px 0 0;font-size:30px}.date{color:var(--muted);font-size:14px}.primary{background:var(--orange);color:white;border:0;border-radius:12px;padding:11px 16px;font-weight:750;box-shadow:0 5px 14px rgba(208,111,45,.25)}.secondary{background:white;border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-weight:700;color:var(--coffee)}
+    .page{display:none}.page.active{display:block}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:22px}.card,.panel{background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow)}.stat{padding:20px;position:relative;overflow:hidden}.stat:after{content:"";position:absolute;width:70px;height:70px;border-radius:50%;right:-18px;top:-18px;background:#f4ded0}.stat span{color:var(--muted);font-size:14px}.stat strong{font:800 28px/1.2 Georgia,serif;display:block;margin:7px 0}.stat small{color:var(--green);font-weight:700}.grid2{display:grid;grid-template-columns:1.35fr .85fr;gap:18px}.panel{padding:22px}.panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.panel h2{font-size:18px;margin:0}.sale-code{background:#fff6e9;border:1px solid #efd3bd;color:var(--coffee);border-radius:999px;padding:7px 11px;font-size:13px;font-weight:850}.flow{display:flex;align-items:center;gap:8px;overflow:auto;padding:10px 0 18px}.flow-box{min-width:125px;text-align:center;border:1px solid var(--line);border-radius:14px;padding:14px 8px;background:#fff}.flow-box b{display:block;font-size:20px}.arrow{color:var(--orange);font-size:24px}.alerts{display:grid;gap:11px}.alert{padding:13px;border-radius:12px;background:#fff6e9;border-left:4px solid #e69a31}.alert.green{background:#edf7f1;border-color:var(--green)}.alert b{display:block}.table-wrap{overflow:auto}.toolbar{display:flex;gap:10px;justify-content:space-between;margin-bottom:18px}.search{min-width:260px;border:1px solid var(--line);background:white;border-radius:10px;padding:10px 13px}.filters{display:flex;gap:8px}table{width:100%;border-collapse:collapse;min-width:680px}th{text-align:left;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.06em;padding:12px;border-bottom:1px solid var(--line)}td{padding:14px 12px;border-bottom:1px solid #eee8e1}.badge{display:inline-block;padding:5px 9px;border-radius:999px;background:#e9f5ee;color:var(--green);font-size:12px;font-weight:800}.badge.warn{background:#fff1df;color:#a95718}.status-toggle{border:1px solid var(--line);background:white;color:var(--coffee);border-radius:10px;padding:8px 11px;font-size:13px;font-weight:800}.status-toggle.active{background:#e9f5ee;color:var(--green);border-color:#c9e5d5}.status-toggle.inactive{background:#fff1df;color:#a95718;border-color:#f0d2ad}.stock{width:95px;height:7px;background:#ece5dd;border-radius:9px;overflow:hidden;margin-top:5px}.stock i{display:block;height:100%;background:var(--green)}
+    .production{display:grid;grid-template-columns:1fr 70px 1fr;align-items:center;gap:16px}.stage{padding:24px;border:1px solid var(--line);border-radius:16px;background:white}.stage-icon{font-size:38px}.stage h3{margin:8px 0 4px}.stage-arrow{text-align:center;font-size:38px;color:var(--orange)}.calc{margin-top:18px;background:#2f6b4f;color:white;border-radius:15px;padding:18px;display:flex;justify-content:space-between}.cards3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.product{padding:18px}.pack{height:125px;border-radius:14px;background:linear-gradient(145deg,#e5c49d,#b98252);display:grid;place-items:center;font-size:45px;margin-bottom:14px}.product h3{margin:0}.product .row{display:flex;justify-content:space-between;margin-top:12px}.sale-layout{display:grid;grid-template-columns:1.1fr .9fr;gap:18px}.sale-picker{display:grid;gap:16px;margin-bottom:18px}.sale-row{display:grid;gap:12px;align-items:end}.sale-row.sale-main{grid-template-columns:repeat(4,minmax(145px,1fr))}.sale-row.sale-product{grid-template-columns:1.2fr 1fr 110px auto;padding-top:16px;border-top:1px solid var(--line)}.sale-row.purchase-product{grid-template-columns:1.2fr 1fr 90px 120px auto}.sale-picker label{display:grid;gap:6px;font-size:13px;font-weight:800;color:var(--coffee)}.sale-picker select,.sale-picker input{border:1px solid var(--line);border-radius:10px;background:white;padding:11px;min-width:0}.sale-footer{margin-top:18px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:13px}.sale-footer b{color:var(--coffee)}.catalog{display:grid;grid-template-columns:1fr;gap:12px}.sale-item{padding:16px;border:1px solid var(--line);border-radius:14px;background:white}.sale-item-head{display:flex;justify-content:space-between;gap:12px;align-items:start}.sale-item h3{margin:0;font-size:16px}.sale-item p{margin:7px 0 12px;color:var(--muted)}.sale-item button,.qty-btn{border:0;border-radius:50%;background:var(--coffee);color:white;width:32px;height:32px;font-weight:800}.sale-item button:disabled{background:#c7b9ad;cursor:not-allowed}.receipt{background:#291d17;color:white;border-radius:18px;padding:22px;min-height:330px}.receipt h2{margin-top:0}.receipt-line{display:grid;grid-template-columns:1fr auto;gap:10px;padding:13px 0;border-bottom:1px solid #4d3b32}.receipt-line small{color:#cbbdb5}.qty{display:flex;align-items:center;gap:8px}.qty-btn{width:28px;height:28px;background:#5c4337}.remove-line{border:0;background:transparent;color:#e9ad7e;font-weight:800;padding:0}.total{display:flex;justify-content:space-between;font-size:22px;font-weight:800;padding:20px 0}.receipt-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}.chart{height:220px;display:flex;align-items:end;gap:18px;padding:20px 15px 0;border-bottom:1px solid var(--line)}.bar{flex:1;background:linear-gradient(var(--orange),#e9ad7e);border-radius:8px 8px 0 0;position:relative;min-width:28px}.bar span{position:absolute;bottom:-28px;width:100%;text-align:center;font-size:12px;color:var(--muted)}.metric-list{display:grid;gap:13px}.metric{display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px solid var(--line)}.empty{padding:50px;text-align:center;color:var(--muted)}
+    .modal{position:fixed;inset:0;background:rgba(25,16,11,.56);display:none;place-items:center;padding:20px;z-index:9}.modal.open{display:grid}.dialog{background:white;width:min(520px,100%);border-radius:20px;padding:24px;box-shadow:0 22px 70px rgba(0,0,0,.25)}.dialog-head{display:flex;justify-content:space-between}.dialog h2{margin:0 0 18px}.close{border:0;background:#f2ece6;border-radius:50%;width:34px;height:34px}.form{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:grid;gap:6px}.field.full{grid-column:1/-1}.field label{font-size:13px;font-weight:750}.field input,.field select,.field textarea{padding:11px;border:1px solid var(--line);border-radius:10px;background:white}.field textarea{min-height:96px;resize:vertical;font-family:inherit}.actions{grid-column:1/-1;display:flex;justify-content:flex-end;gap:9px;margin-top:8px}.toast{position:fixed;right:24px;bottom:24px;background:#2f6b4f;color:white;padding:13px 18px;border-radius:12px;transform:translateY(120px);transition:.3s;z-index:11}.toast.show{transform:translateY(0)}.mobile-nav{display:none}
+    @media(max-width:1000px){.stats{grid-template-columns:repeat(2,1fr)}.grid2,.sale-layout{grid-template-columns:1fr}.cards3{grid-template-columns:1fr 1fr}.sale-row.sale-main,.sale-row.sale-product{grid-template-columns:repeat(2,1fr)}.sale-row.sale-product .primary{grid-column:1/-1}}
+    @media(max-width:720px){.app{display:block}.sidebar{display:none}.main{padding:20px 15px 90px}.topbar{align-items:flex-end}.topbar h1{font-size:24px}.date{display:none}.stats{grid-template-columns:1fr 1fr;gap:10px}.stat{padding:15px}.stat strong{font-size:22px}.production{grid-template-columns:1fr}.stage-arrow{transform:rotate(90deg)}.cards3,.catalog,.sale-row.sale-main,.sale-row.sale-product{grid-template-columns:1fr}.toolbar{align-items:stretch;flex-direction:column}.search{min-width:0;width:100%}.mobile-nav{position:fixed;display:flex;bottom:0;left:0;right:0;background:white;border-top:1px solid var(--line);padding:7px 6px calc(7px + env(safe-area-inset-bottom));z-index:5;overflow:auto}.mobile-nav button{border:0;background:white;min-width:72px;color:var(--muted);font-size:11px;padding:5px}.mobile-nav button i{display:block;font-style:normal;font-size:20px}.mobile-nav button.active{color:var(--orange);font-weight:800}.form{grid-template-columns:1fr}.field.full,.actions{grid-column:1}.flow-box{min-width:110px}.panel{padding:16px}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar"><div class="brand"><div class="bean"></div><div><strong>Café Control</strong><small>Inventario y ventas</small></div></div><nav class="nav" id="nav"></nav><div class="profile">👤 Juan · Administrador</div></aside>
+  <main class="main"><header class="topbar"><div><p class="eyebrow">Negocio de café</p><h1 id="pageTitle">Resumen del negocio</h1></div><div class="date">13 de septiembre de 2026</div></header>
+    <section class="page active" id="dashboard">
+      <div class="stats"><article class="card stat"><span>Café a granel</span><strong>30 lb</strong><small>Materia prima</small></article><article class="card stat"><span>Bolsas disponibles</span><strong>47</strong><small>Lista para vender</small></article><article class="card stat"><span>Ventas del mes</span><strong>$428</strong><small>↑ 12% este mes</small></article><article class="card stat"><span>Ganancia estimada</span><strong>$176</strong><small>41% de margen</small></article></div>
+      <div class="grid2"><article class="panel"><div class="panel-head"><h2>Flujo de inventario</h2><button class="secondary" data-go="produccion">Ver producción</button></div><div class="flow"><div class="flow-box">🫘<b>50 lb</b><small>Compradas</small></div><span class="arrow">→</span><div class="flow-box">📦<b>50</b><small>Empacadas</small></div><span class="arrow">→</span><div class="flow-box">🛍️<b>3</b><small>Vendidas</small></div><span class="arrow">→</span><div class="flow-box">✓<b>47</b><small>Disponibles</small></div></div></article><article class="panel"><div class="panel-head"><h2>Atención requerida</h2></div><div class="alerts"><div class="alert"><b>Empaque de ½ lb bajo</b>Quedan 8 bolsas disponibles.</div><div class="alert green"><b>Inventario actualizado</b>La última venta se registró correctamente.</div></div></article></div>
+    </section>
+    <section class="page" id="proveedores"><div class="panel"><div class="panel-head"><h2>Proveedores registrados</h2><button class="primary add" data-form="Proveedor">+ Nuevo proveedor</button></div><div class="toolbar"><input class="search" placeholder="Buscar proveedor…"><div class="filters"><button class="secondary">Todos</button><button class="secondary">Activos</button></div></div><div class="table-wrap"><table><thead><tr><th>Proveedor</th><th>Contacto</th><th>Origen</th><th>Última compra</th><th>Estado</th></tr></thead><tbody><tr><td><b>Finca La Montaña</b></td><td>+507 6000-1200</td><td>Boquete</td><td>10 sep 2026</td><td><span class="badge">Activo</span></td></tr><tr><td><b>Café Altura</b></td><td>ventas@altura.pa</td><td>Volcán</td><td>22 ago 2026</td><td><span class="badge">Activo</span></td></tr></tbody></table></div></div></section>
+    <section class="page" id="compras"><div class="sale-layout"><div class="panel"><div class="panel-head"><h2>Nueva compra</h2><span class="sale-code" id="purchaseCode">Compra #: CMP-4821</span></div><div class="sale-picker"><div class="sale-row sale-main"><label>Proveedor<select id="purchaseSupplier"><option>Finca La Montaña</option><option>Café Altura</option><option>Proveedor nuevo</option></select></label><label>Tipo de compra<select id="purchaseType"><option>Contado</option><option>Crédito</option></select></label><label>Forma de pago<select id="purchasePaymentMethod"><option>Efectivo</option><option>Transferencia</option><option>Tarjeta</option><option>Cheque</option></select></label><label>Fecha de compra<input id="purchaseDate" type="datetime-local"></label></div><div class="sale-row sale-product purchase-product"><label>Producto o café<select id="purchaseCoffee"><option>Café A</option><option>Café B</option><option>Café C</option><option>Café D</option></select></label><label>Presentación<select id="purchasePresentation"><option>1 libra</option><option>2 libras</option><option>4 libras</option><option>5 libras</option><option>1 kg</option><option>4 kg</option></select></label><label>Cantidad<select id="purchaseQuantity"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option></select></label><label>Costo<input id="purchaseUnitCost" readonly></label><button class="primary" id="addPurchaseDetail">Agregar</button></div></div><div class="catalog"><div class="sale-item"><div class="sale-item-head"><div><h3 id="purchasePreviewTitle">Café A · 1 libra</h3><p id="purchasePreviewCost">Costo estimado por unidad: $3.00</p></div><button type="button">+</button></div><span class="badge">Pendiente de registrar</span></div></div><div class="sale-footer">Comprador: <b>Juan · Administrador</b></div></div><aside class="receipt"><h2>Detalle de compra</h2><div id="purchaseDetailLines"><div class="empty" style="color:#cbbdb5">Agrega productos para comenzar</div></div><div class="total"><span>Total compra</span><span id="purchaseDetailTotal">$0.00</span></div><div class="receipt-actions"><button class="secondary" id="clearPurchase">Vaciar</button><button class="primary" id="savePurchase">Guardar compra</button></div></aside></div><div class="panel" style="margin-top:18px"><div class="panel-head"><h2>Compras recientes</h2></div><div class="table-wrap"><table><thead><tr><th>Compra</th><th>Proveedor</th><th>Cantidad</th><th>Costo</th><th>Fecha</th><th>Estado</th></tr></thead><tbody><tr><td><b>COM-0018</b></td><td>Finca La Montaña</td><td>50 lb</td><td>$150.00</td><td>10 sep 2026</td><td><span class="badge">Recibida</span></td></tr><tr><td><b>COM-0017</b></td><td>Café Altura</td><td>25 lb</td><td>$81.25</td><td>22 ago 2026</td><td><span class="badge">Recibida</span></td></tr></tbody></table></div></div></section>
+    <section class="page" id="pagosCompra"><div class="panel"><div class="panel-head"><h2>Registro de pago</h2><button class="primary add" data-form="Pago a proveedor">+ Registrar pago</button></div><div class="table-wrap"><table><thead><tr><th>Pago</th><th>Código de compra</th><th>Proveedor</th><th>Forma de pago</th><th>Monto</th><th>Fecha</th><th>Resultado</th></tr></thead><tbody><tr><td><b>PAG-0012</b></td><td><b>COM-0018</b></td><td>Finca La Montaña</td><td>Transferencia</td><td>$100.00</td><td>12 sep 2026</td><td><span class="badge">Aplicado</span></td></tr><tr><td><b>PAG-0011</b></td><td><b>COM-0017</b></td><td>Café Altura</td><td>Efectivo</td><td>$81.25</td><td>22 ago 2026</td><td><span class="badge">Aplicado</span></td></tr></tbody></table></div></div></section>
+    <section class="page" id="estadoCuentaCompras"><div class="stats"><article class="card stat"><span>Saldo a proveedores</span><strong>$50</strong><small>Compras pendientes</small></article><article class="card stat"><span>Vencido</span><strong>$0</strong><small>Sin atrasos</small></article><article class="card stat"><span>Pagado este mes</span><strong>$181</strong><small>Pagos registrados</small></article><article class="card stat"><span>Proveedores activos</span><strong>2</strong><small>Cuentas abiertas</small></article></div><div class="panel"><div class="panel-head"><h2>Estado de cuenta de compras</h2></div><div class="table-wrap"><table><thead><tr><th>Proveedor</th><th>Compra</th><th>Fecha</th><th>Tipo</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Estado</th></tr></thead><tbody><tr><td><b>Finca La Montaña</b></td><td>COM-0018</td><td>10 sep 2026</td><td><span class="badge warn">Crédito</span></td><td>$150.00</td><td>$100.00</td><td>$50.00</td><td><span class="badge warn">Pendiente</span></td></tr><tr><td><b>Café Altura</b></td><td>COM-0017</td><td>22 ago 2026</td><td><span class="badge">Contado</span></td><td>$81.25</td><td>$81.25</td><td>$0.00</td><td><span class="badge">Pagado</span></td></tr></tbody></table></div></div></section>
+    <section class="page" id="materia"><div class="stats"><article class="card stat"><span>Existencia total</span><strong>30 lb</strong><small>Disponible</small></article><article class="card stat"><span>Costo promedio</span><strong>$3.05</strong><small>Por libra</small></article><article class="card stat"><span>Valor almacenado</span><strong>$91.50</strong><small>Al costo</small></article><article class="card stat"><span>Punto mínimo</span><strong>15 lb</strong><small>Genera una alerta</small></article></div><div class="panel"><div class="panel-head"><h2>Movimientos de materia prima</h2><button class="primary add" data-form="Ajuste de inventario">+ Ajustar inventario</button></div><div class="table-wrap"><table><thead><tr><th>Fecha</th><th>Movimiento</th><th>Entrada</th><th>Salida</th><th>Saldo</th><th>Referencia</th></tr></thead><tbody><tr><td>12 sep, 9:30</td><td><b>Producción</b></td><td>—</td><td>20 lb</td><td>30 lb</td><td>PRO-0042</td></tr><tr><td>10 sep, 14:20</td><td><b>Compra</b></td><td>50 lb</td><td>—</td><td>50 lb</td><td>COM-0018</td></tr></tbody></table></div></div></section>
+    <section class="page" id="produccion"><div class="panel"><div class="panel-head"><h2>Nueva orden de empaque</h2><button class="primary add" data-form="Orden de producción">+ Crear orden</button></div><div class="production"><div class="stage"><div class="stage-icon">🫘</div><h3>Materia prima</h3><p>Selecciona el lote y las libras de café que utilizarás.</p><b>Disponible: 30 lb</b></div><div class="stage-arrow">→</div><div class="stage"><div class="stage-icon">📦</div><h3>Producto terminado</h3><p>Indica la presentación y cantidad de bolsas producidas.</p><b>Presentación: 1 lb</b></div></div><div class="calc"><span>Ejemplo de conversión</span><strong>20 lb de café = 20 bolsas de 1 lb</strong></div></div><div class="panel" style="margin-top:18px"><div class="panel-head"><h2>Órdenes recientes</h2></div><div class="table-wrap"><table><thead><tr><th>Orden</th><th>Fecha</th><th>Café utilizado</th><th>Resultado</th><th>Merma</th><th>Estado</th></tr></thead><tbody><tr><td><b>PRO-0042</b></td><td>12 sep 2026</td><td>20 lb</td><td>20 bolsas × 1 lb</td><td>0 lb</td><td><span class="badge">Completada</span></td></tr></tbody></table></div></div></section>
+    <section class="page" id="productos"><div class="panel-head"><h2>Productos listos para vender</h2><button class="primary add" data-form="Producto">+ Nuevo producto</button></div><div class="cards3" id="productCards"></div></section>
+    <section class="page" id="clientes"><div class="panel"><div class="panel-head"><h2>Clientes</h2><button class="primary add" data-form="Cliente">+ Nuevo cliente</button></div><div class="toolbar"><input class="search" placeholder="Buscar por nombre o teléfono…"></div><div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Teléfono</th><th>Compras</th><th>Total comprado</th><th>Última visita</th></tr></thead><tbody><tr><td><b>Ana Rodríguez</b></td><td>+507 6123-4567</td><td>6</td><td>$102.00</td><td>12 sep 2026</td></tr><tr><td><b>Café Central</b></td><td>+507 7000-2288</td><td>14</td><td>$476.50</td><td>11 sep 2026</td></tr><tr><td><b>Cliente general</b></td><td>—</td><td>31</td><td>$263.50</td><td>13 sep 2026</td></tr></tbody></table></div></div></section>
+    <section class="page" id="ventas"><div class="sale-layout"><div class="panel"><div class="panel-head"><h2>Nueva venta</h2><span class="sale-code" id="saleCode">Venta #: ACX-3244</span></div><div class="sale-picker"><div class="sale-row sale-main"><label>Cliente<select id="saleCustomer"><option>Cliente general</option><option>Ana Rodríguez</option><option>Café Central</option></select></label><label>Tipo de pago<select id="paymentType"><option>Contado</option><option>Crédito</option></select></label><label>Forma de pago<select id="paymentMethod"><option>Efectivo</option><option>Yappy</option><option>Tarjeta</option><option>Transferencia</option></select></label><label>Fecha de pago<input id="paymentDate" type="datetime-local"></label></div><div class="sale-row sale-product"><label>Producto o café<select id="coffeeSelect"></select></label><label>Presentación<select id="presentationSelect"></select></label><label>Cantidad<select id="quantitySelect"></select></label><button class="primary" id="addSelected">Agregar</button></div></div><div class="catalog" id="saleCatalog"></div><div class="sale-footer">Vendedor: <b>Juan · Administrador</b></div></div><aside class="receipt"><h2>Detalle de venta</h2><div id="cart"><div class="empty" style="color:#cbbdb5">Agrega un producto para comenzar</div></div><div class="total"><span>Total</span><span id="total">$0.00</span></div><div class="receipt-actions"><button class="secondary" id="clearSale">Vaciar</button><button class="primary" id="completeSale">Cobrar</button></div></aside></div></section>
+    <section class="page" id="cobros"><div class="panel"><div class="panel-head"><h2>Registro de cobros</h2><button class="primary add" data-form="Cobro">+ Registrar cobro</button></div><div class="table-wrap"><table><thead><tr><th>Cobro</th><th>Código de venta</th><th>Cliente</th><th>Forma de pago</th><th>Monto</th><th>Fecha</th><th>Resultado</th></tr></thead><tbody><tr><td><b>COB-0007</b></td><td><b>VEN-0031</b></td><td>Café Central</td><td>Transferencia</td><td>$85.00</td><td>13 sep 2026</td><td><span class="badge">Aplicado</span></td></tr><tr><td><b>COB-0006</b></td><td><b>VEN-0030</b></td><td>Ana Rodríguez</td><td>Yappy</td><td>$24.00</td><td>12 sep 2026</td><td><span class="badge">Aplicado</span></td></tr></tbody></table></div></div></section>
+    <section class="page" id="estadoCuenta"><div class="stats"><article class="card stat"><span>Saldo pendiente</span><strong>$142</strong><small>Ventas a crédito</small></article><article class="card stat"><span>Vencido</span><strong>$38</strong><small>Requiere seguimiento</small></article><article class="card stat"><span>Cobrado este mes</span><strong>$326</strong><small>Pagos registrados</small></article><article class="card stat"><span>Clientes con crédito</span><strong>3</strong><small>Cuentas abiertas</small></article></div><div class="panel"><div class="panel-head"><h2>Estado de cuenta</h2></div><div class="toolbar"><div class="filters"><label class="field"><span>Desde</span><input id="accountDateFrom" type="date"></label><label class="field"><span>Hasta</span><input id="accountDateTo" type="date"></label><label class="field"><span>Tipo de venta</span><select id="accountSaleType"><option value="todos">Todos</option><option value="contado">Contado</option><option value="credito">Crédito</option></select></label></div></div><div class="table-wrap"><table><thead><tr><th>Cliente</th><th>Documento</th><th>Fecha</th><th>Tipo de venta</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Días desde último pago</th><th>Estado</th></tr></thead><tbody><tr data-date="2026-09-11" data-type="credito"><td><b>Café Central</b></td><td>VEN-0031</td><td>11 sep 2026</td><td><span class="badge warn">Crédito</span></td><td>$120.00</td><td>$85.00</td><td>$35.00</td><td>1 día</td><td><span class="badge warn">Pendiente</span></td></tr><tr data-date="2026-09-04" data-type="credito"><td><b>Ana Rodríguez</b></td><td>VEN-0028</td><td>04 sep 2026</td><td><span class="badge warn">Crédito</span></td><td>$38.00</td><td>$0.00</td><td>$38.00</td><td>10 días</td><td><span class="badge warn">Vencido</span></td></tr><tr data-date="2026-09-14" data-type="contado"><td><b>Cliente general</b></td><td>VEN-0034</td><td>14 sep 2026</td><td><span class="badge">Contado</span></td><td>$20.00</td><td>$20.00</td><td>$0.00</td><td>0 días</td><td><span class="badge">Pagado</span></td></tr></tbody></table></div></div></section>
+    <section class="page" id="reportes"><div class="stats"><article class="card stat"><span>Ingresos</span><strong>$428</strong><small>Septiembre</small></article><article class="card stat"><span>Costos</span><strong>$252</strong><small>58.9% de ingresos</small></article><article class="card stat"><span>Ganancia</span><strong>$176</strong><small>Margen 41.1%</small></article><article class="card stat"><span>Bolsas vendidas</span><strong>51</strong><small>Este mes</small></article></div><div class="grid2"><article class="panel"><div class="panel-head"><h2>Ventas de los últimos 6 meses</h2></div><div class="chart"><div class="bar" style="height:46%"><span>Abr</span></div><div class="bar" style="height:62%"><span>May</span></div><div class="bar" style="height:55%"><span>Jun</span></div><div class="bar" style="height:76%"><span>Jul</span></div><div class="bar" style="height:69%"><span>Ago</span></div><div class="bar" style="height:92%"><span>Sep</span></div></div></article><article class="panel"><div class="panel-head"><h2>Productos más vendidos</h2></div><div class="metric-list"><div class="metric"><span>Café clásico · 1 lb</span><b>31 bolsas</b></div><div class="metric"><span>Café clásico · ½ lb</span><b>13 bolsas</b></div><div class="metric"><span>Café premium · 1 lb</span><b>7 bolsas</b></div></div></article></div></section>
+    <section class="page" id="mantenimiento"><div class="stats"><article class="card stat"><span>Catálogos</span><strong>7</strong><small>Listas configurables</small></article><article class="card stat"><span>Usuarios</span><strong>3</strong><small>Accesos activos</small></article><article class="card stat"><span>Alertas</span><strong>4</strong><small>Reglas de inventario</small></article><article class="card stat"><span>Respaldos</span><strong>7</strong><small>Últimos guardados</small></article></div><div class="grid2"><article class="panel"><div class="panel-head"><h2>Catálogos del sistema</h2><button class="primary add" data-form="Catálogo">+ Nuevo catálogo</button></div><div class="metric-list"><div class="metric"><span>Tipos de café</span><b>Café A, B, C, D</b></div><div class="metric"><span>Presentaciones</span><b>Media libra, Una libra</b></div><div class="metric"><span>Formas de pago</span><b>Efectivo, Transferencia, Tarjeta</b></div><div class="metric"><span>Roles</span><b>Administrador, Vendedor</b></div></div></article><article class="panel"><div class="panel-head"><h2>Parámetros</h2></div><div class="metric-list"><div class="metric"><span>Stock mínimo materia prima</span><b>15 lb</b></div><div class="metric"><span>Prefijo de ventas</span><b>VEN</b></div><div class="metric"><span>Prefijo de compras</span><b>COM</b></div><div class="metric"><span>Moneda</span><b>USD</b></div></div></article></div></section>
+    <section class="page" id="registrarPresentacion"><article class="panel"><div class="panel-head"><h2>Registrar presentación</h2></div><form class="form" id="presentationForm"><label class="field"><span>Nombre</span><input id="presentationName" type="text" placeholder="Ej. Media libra" required></label><label class="field full"><span>Descripción</span><textarea id="presentationDescription" placeholder="Detalle de la presentación o empaque" required></textarea></label><div class="actions"><button class="primary" type="submit">Guardar</button></div></form></article></section>
+    <section class="page" id="listarPresentacion"><article class="panel"><div class="panel-head"><h2>Lista de presentaciones</h2><button class="secondary" data-presentation-modal="true">+ Registrar presentación</button></div><table><thead><tr><th>Presentación</th><th>Descripción</th><th>Estado</th></tr></thead><tbody id="presentationList"><tr><td>1 libra</td><td>Bolsa de café empacado en presentación de 1 libra</td><td><span class="badge">Activo</span></td></tr><tr><td>2 libras</td><td>Bolsa de café empacado en presentación de 2 libras</td><td><span class="badge">Activo</span></td></tr><tr><td>4 libras</td><td>Bolsa de café empacado en presentación de 4 libras</td><td><span class="badge">Activo</span></td></tr><tr><td>5 libras</td><td>Bolsa de café empacado en presentación de 5 libras</td><td><span class="badge">Activo</span></td></tr><tr><td>1 kg</td><td>Empaque de café por kilogramo</td><td><span class="badge">Activo</span></td></tr><tr><td>4 kg</td><td>Empaque de café para venta mayorista</td><td><span class="badge">Activo</span></td></tr></tbody></table></article></section>
+    <section class="page" id="formaPago"><article class="panel"><div class="panel-head"><h2>Forma de pago</h2><button class="secondary" data-payment-modal="true">+ Crear forma de pago</button></div><div class="table-wrap"><table><thead><tr><th>Forma de pago</th><th>Uso sugerido</th><th>Estado</th><th>Acción</th></tr></thead><tbody id="paymentMethodList"></tbody></table></div></article></section>
+  </main>
+</div>
+<nav class="mobile-nav" id="mobileNav"></nav>
+<div class="modal" id="modal"><div class="dialog"><div class="dialog-head"><h2 id="modalTitle">Nuevo registro</h2><button class="close" id="close">×</button></div><form class="form" id="form"><div class="field full"><label>Nombre o descripción</label><input required placeholder="Escribe aquí"></div><div class="field"><label>Cantidad</label><input type="number" min="0" placeholder="0"></div><div class="field"><label>Fecha</label><input type="date" value="2026-09-13"></div><div class="field full"><label>Notas</label><input placeholder="Información adicional (opcional)"></div><div class="actions"><button type="button" class="secondary" id="cancel">Cancelar</button><button class="primary">Guardar registro</button></div></form></div></div><div class="toast" id="toast">Registro guardado correctamente</div>
+<script>
+const items=[['dashboard','⌂','Inicio','Resumen del negocio'],['proveedores','♟','Proveedores','Proveedores'],['compras','↓','Registro de compras','Registro de compras'],['pagosCompra','•','Registro de pago','Registro de pago'],['estadoCuentaCompras','•','Estado de cuenta','Estado de cuenta de compras'],['materia','◉','Materia prima','Inventario de materia prima'],['produccion','⚙','Producción','Empaque y producción'],['productos','◇','Productos','Productos terminados'],['clientes','♙','Clientes','Clientes'],['ventas','$','Crear venta','Crear venta'],['cobros','•','Registro de cobros','Registro de cobros'],['estadoCuenta','•','Estado de cuenta','Estado de cuenta'],['reportes','▥','Reportes','Reportes e indicadores'],['mantenimiento','☷','Mantenimiento','Mantenimiento'],['registrarPresentacion','•','Registrar presentación','Registrar presentación'],['listarPresentacion','•','Listar presentación','Listar presentación'],['formaPago','•','Forma de pago','Forma de pago']];
+const nav=document.querySelector('#nav'),mobile=document.querySelector('#mobileNav'),salesPages=['ventas','cobros','estadoCuenta'],purchasePages=['compras','pagosCompra','estadoCuentaCompras'],maintenancePages=['listarPresentacion','formaPago'];items.forEach(([id,icon,label])=>{if(id==='compras'){nav.insertAdjacentHTML('beforeend',`<div class="nav-group" id="purchaseAccordion"><button type="button" class="accordion-toggle" data-accordion="purchases" data-purchase-parent="true"><span class="nav-label"><i>↓</i>Compras</span><span class="chevron">›</span></button><div class="subnav"><button data-go="compras">Registro de compras</button><button data-go="pagosCompra">Registro de pago</button><button data-go="estadoCuentaCompras">Estado de cuenta</button></div></div>`)}if(id==='ventas'){nav.insertAdjacentHTML('beforeend',`<div class="nav-group" id="salesAccordion"><button type="button" class="accordion-toggle" data-accordion="sales" data-sales-parent="true"><span class="nav-label"><i>$</i>Ventas</span><span class="chevron">›</span></button><div class="subnav"><button data-go="ventas">Crear venta</button><button data-go="cobros">Registro de cobros</button><button data-go="estadoCuenta">Estado de cuenta</button></div></div>`)}if(id==='mantenimiento'){nav.insertAdjacentHTML('beforeend',`<div class="nav-group" id="maintenanceAccordion"><button type="button" class="accordion-toggle" data-accordion="maintenance" data-maintenance-parent="true"><span class="nav-label"><i>☷</i>Mantenimiento</span><span class="chevron">›</span></button><div class="subnav"><button data-go="listarPresentacion">Listar presentación</button><button data-go="formaPago">Forma de pago</button></div></div>`)}if(!salesPages.includes(id)&&!purchasePages.includes(id)&&!maintenancePages.includes(id)&&id!=='mantenimiento'&&id!=='registrarPresentacion')nav.insertAdjacentHTML('beforeend',`<button data-go="${id}" class="${id==='dashboard'?'active':''}"><i>${icon}</i>${label}</button>`);mobile.insertAdjacentHTML('beforeend',`<button data-go="${id}" class="${id==='dashboard'?'active':''}"><i>${icon}</i>${label}</button>`)});
+function go(id){document.querySelectorAll('.page').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('[data-go]').forEach(x=>x.classList.toggle('active',x.dataset.go===id));document.querySelectorAll('[data-sales-parent]').forEach(x=>x.classList.toggle('active',salesPages.includes(id)));document.querySelectorAll('[data-purchase-parent]').forEach(x=>x.classList.toggle('active',purchasePages.includes(id)));document.querySelectorAll('[data-maintenance-parent]').forEach(x=>x.classList.toggle('active',maintenancePages.includes(id)));document.querySelector('#salesAccordion')?.classList.toggle('open',salesPages.includes(id));document.querySelector('#purchaseAccordion')?.classList.toggle('open',purchasePages.includes(id));document.querySelector('#maintenanceAccordion')?.classList.toggle('open',maintenancePages.includes(id));document.querySelector('#pageTitle').textContent=items.find(x=>x[0]===id)?.[3]||'';scrollTo({top:0,behavior:'smooth'})}document.addEventListener('click',e=>{const a=e.target.closest('[data-accordion]');if(a){a.closest('.nav-group')?.classList.toggle('open');return}const b=e.target.closest('[data-go]');if(b)go(b.dataset.go)});
+const modal=document.querySelector('#modal');document.querySelectorAll('.add').forEach(b=>b.onclick=()=>{document.querySelector('#modalTitle').textContent='Nuevo: '+b.dataset.form;modal.classList.add('open')});function close(){modal.classList.remove('open')}document.querySelector('#close').onclick=close;document.querySelector('#cancel').onclick=close;modal.onclick=e=>{if(e.target===modal)close()};document.querySelector('#form').onsubmit=e=>{e.preventDefault();close();showToast('Registro guardado correctamente');e.target.reset()};
+const paymentMethods=[{name:'Efectivo',usage:'Ventas y compras de contado',active:true},{name:'Yappy',usage:'Cobros rápidos a clientes',active:true},{name:'Tarjeta',usage:'Pagos con punto de venta',active:true},{name:'Transferencia',usage:'Bancos y pagos a proveedor',active:true},{name:'Cheque',usage:'Pagos a proveedor',active:true}];function escapeHtml(value){return String(value).replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]))}function activePaymentMethods(){return paymentMethods.filter(method=>method.active)}function paymentMethodOptionsHtml(){return activePaymentMethods().map(method=>`<option>${escapeHtml(method.name)}</option>`).join('')}function refreshPaymentSelects(){const options=paymentMethodOptionsHtml();['#paymentMethod','#purchasePaymentMethod'].forEach(selector=>{const select=document.querySelector(selector);if(!select)return;const current=select.value;select.innerHTML=options;select.value=activePaymentMethods().some(method=>method.name===current)?current:(activePaymentMethods()[0]?.name||'')})}function renderPaymentMethods(){const list=document.querySelector('#paymentMethodList');if(!list)return;list.innerHTML=paymentMethods.map((method,index)=>`<tr><td><b>${escapeHtml(method.name)}</b></td><td>${escapeHtml(method.usage)}</td><td><span class="badge ${method.active?'':'warn'}">${method.active?'Activo':'Inactivo'}</span></td><td><button type="button" class="status-toggle ${method.active?'active':'inactive'}" data-payment-toggle="${index}">${method.active?'Desactivar':'Activar'}</button></td></tr>`).join('');refreshPaymentSelects()}window.paymentMethodOptionsHtml=paymentMethodOptionsHtml;window.refreshPaymentSelects=refreshPaymentSelects;window.renderPaymentMethods=renderPaymentMethods;
+const saleCoffees=['Café A','Café B','Café C','Café D'],salePresentations=['1 libra','2 libras','4 libras','5 libras','1 kg','4 kg'],saleBasePrices={'Café A':5,'Café B':5.5,'Café C':7,'Café D':8},saleUnits={'1 libra':1,'2 libras':2,'4 libras':4,'5 libras':5,'1 kg':2.2,'4 kg':8.8};const products=saleCoffees.flatMap((coffee,coffeeIndex)=>salePresentations.map((presentation,presentationIndex)=>{const slug=(coffee+' '+presentation).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');return{id:slug,coffee,presentation,sku:`${coffee.replace('Café ','CAF-')}-${presentation.toUpperCase().replace(/\s+/g,'-')}`,price:Math.round((saleBasePrices[coffee]*saleUnits[presentation])*100)/100,stock:18+coffeeIndex*5+presentationIndex*3,max:70}}));let cart={};const money=n=>'$'+n.toFixed(2);function cartQty(id){return cart[id]||0}function selectedQty(){return Number(document.querySelector('#quantitySelect').value||1)}function productName(p){return `${p.coffee} · ${p.presentation}`}function selectedProduct(){return products.find(p=>p.coffee===document.querySelector('#coffeeSelect').value&&p.presentation===document.querySelector('#presentationSelect').value)}function renderSaleOptions(){const coffees=[...new Set(products.map(p=>p.coffee))],presentations=[...new Set(products.map(p=>p.presentation))],coffee=document.querySelector('#coffeeSelect'),presentation=document.querySelector('#presentationSelect'),quantity=document.querySelector('#quantitySelect');if(!coffee.options.length)coffee.innerHTML=coffees.map(x=>`<option>${x}</option>`).join('');if(!presentation.options.length)presentation.innerHTML=presentations.map(x=>`<option>${x}</option>`).join('');if(!quantity.options.length)quantity.innerHTML=Array.from({length:10},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('')}function renderProducts(){renderSaleOptions();const cards=document.querySelector('#productCards'),catalog=document.querySelector('#saleCatalog'),p=selectedProduct(),qty=selectedQty();if(cards)cards.innerHTML=products.map(p=>{const pct=Math.max(4,Math.round(p.stock/p.max*100)),warn=p.stock<=10;return `<article class="card product"><div class="pack">☕</div><h3>${productName(p)}</h3><small>${p.sku}</small><div class="row"><b>${money(p.price)}</b><span class="badge ${warn?'warn':''}">${p.stock} disponibles</span></div><div class="stock"><i style="width:${pct}%;${warn?'background:#d06f2d':''}"></i></div></article>`}).join('');if(!p){catalog.innerHTML='<div class="sale-item"><b>Combinación no disponible</b><p>Selecciona otro café o presentación.</p></div>';document.querySelector('#addSelected').disabled=true;return}const available=p.stock-cartQty(p.id),warn=available<=10,canAdd=available>=qty;document.querySelector('#addSelected').disabled=!canAdd;catalog.innerHTML=`<div class="sale-item"><div class="sale-item-head"><div><h3>${productName(p)}</h3><p>${p.sku} · ${money(p.price)} · ${qty} ${qty===1?'unidad':'unidades'} seleccionadas</p></div><button class="add-cart" data-id="${p.id}" ${canAdd?'':'disabled'}>+</button></div><span class="badge ${warn?'warn':''}">${available} disponibles</span></div>`}function renderCart(){const lines=Object.entries(cart).filter(([,qty])=>qty>0),cartEl=document.querySelector('#cart');if(!lines.length){cartEl.innerHTML='<div class="empty" style="color:#cbbdb5">Agrega un producto para comenzar</div>';document.querySelector('#total').textContent='$0.00';renderProducts();return}let total=0;cartEl.innerHTML=lines.map(([id,qty])=>{const p=products.find(x=>x.id===id),line=p.price*qty;total+=line;return `<div class="receipt-line"><div><b>${productName(p)}</b><br><small>${money(p.price)} c/u</small><div class="qty"><button class="qty-btn" data-dec="${id}">−</button><span>${qty}</span><button class="qty-btn" data-inc="${id}">+</button><button class="remove-line" data-remove="${id}">Quitar</button></div></div><b>${money(line)}</b></div>`}).join('');document.querySelector('#total').textContent=money(total);renderProducts()}function addToCart(id,amount=1){const p=products.find(x=>x.id===id);if(!p)return;if(cartQty(id)+amount>p.stock)return showToast('No hay suficiente inventario disponible');cart[id]=cartQty(id)+amount;renderCart()}function resetSale(){cart={};renderCart()}document.querySelector('#coffeeSelect').onchange=renderProducts;document.querySelector('#presentationSelect').onchange=renderProducts;document.querySelector('#quantitySelect').onchange=renderProducts;document.querySelector('#addSelected').onclick=()=>{const p=selectedProduct();if(p)addToCart(p.id,selectedQty())};document.addEventListener('click',e=>{const add=e.target.closest('.add-cart'),inc=e.target.closest('[data-inc]'),dec=e.target.closest('[data-dec]'),rem=e.target.closest('[data-remove]');if(add)addToCart(add.dataset.id,selectedQty());if(inc)addToCart(inc.dataset.inc);if(dec){const id=dec.dataset.dec;cart[id]=Math.max(0,cartQty(id)-1);renderCart()}if(rem){delete cart[rem.dataset.remove];renderCart()}});document.querySelector('#clearSale').onclick=()=>{if(!Object.keys(cart).length)return showToast('La venta ya está vacía');resetSale();showToast('Venta vaciada')};document.querySelector('#completeSale').onclick=()=>{const lines=Object.entries(cart).filter(([,qty])=>qty>0);if(!lines.length)return showToast('Agrega al menos un producto');lines.forEach(([id,qty])=>{const p=products.find(x=>x.id===id);p.stock-=qty});const method=document.querySelector('#paymentMethod').value;resetSale();showToast('Venta cobrada por '+method+' e inventario actualizado')};renderProducts();renderCart();function showToast(t){const x=document.querySelector('#toast');x.textContent=t;x.classList.add('show');setTimeout(()=>x.classList.remove('show'),2600)};
+if(document.modelContext?.registerTool){const lifecycle=new AbortController();Promise.resolve(document.modelContext.registerTool({name:'navigate_inventory_module',title:'Abrir módulo',description:'Abre uno de los módulos visibles de Café Control.',inputSchema:{type:'object',properties:{module:{type:'string',enum:items.map(x=>x[0])}},required:['module'],additionalProperties:false},annotations:{readOnlyHint:true,untrustedContentHint:false},execute(input){if(!items.some(x=>x[0]===input.module))throw new Error('Módulo no válido');go(input.module);return{module:input.module,status:'opened'}}},{signal:lifecycle.signal})).catch(()=>{});Promise.resolve(document.modelContext.registerTool({name:'start_new_sale',title:'Iniciar nueva venta',description:'Abre el punto de venta y deja el carrito listo para registrar productos.',inputSchema:{type:'object',properties:{},additionalProperties:false},annotations:{readOnlyHint:false,untrustedContentHint:false},execute(){resetSale();go('ventas');return{status:'ready',module:'ventas'}}},{signal:lifecycle.signal})).catch(()=>{})}
+</script>
+<script>
+(() => {
+  const purchaseItems = {};
+  const lines = document.querySelector('#purchaseDetailLines');
+  const total = document.querySelector('#purchaseDetailTotal');
+  const purchaseMoney = value => '$' + value.toFixed(2);
+  const baseCosts = { 'Café A': 3, 'Café B': 3.25, 'Café C': 4, 'Café D': 4.5 };
+  const presentationUnits = { '1 libra': 1, '2 libras': 2, '4 libras': 4, '5 libras': 5, '1 kg': 2.2, '4 kg': 8.8 };
+  const itemKey = (product, presentation) => `${product}__${presentation}`;
+  const getPurchaseCost = (product, presentation) => (baseCosts[product] || 3) * (presentationUnits[presentation] || 1);
+  const updatePurchaseCost = () => {
+    const product = document.querySelector('#purchaseCoffee')?.value || '';
+    const presentation = document.querySelector('#purchasePresentation')?.value || '';
+    const quantity = Number(document.querySelector('#purchaseQuantity')?.value || 1);
+    const unitCost = getPurchaseCost(product, presentation);
+    const costInput = document.querySelector('#purchaseUnitCost');
+    const title = document.querySelector('#purchasePreviewTitle');
+    const preview = document.querySelector('#purchasePreviewCost');
+    if (costInput) costInput.value = purchaseMoney(unitCost);
+    if (title) title.textContent = `${product} · ${presentation}`;
+    if (preview) preview.textContent = `Costo unitario ${purchaseMoney(unitCost)} · subtotal ${purchaseMoney(unitCost * quantity)}`;
+  };
+  const renderPurchaseDetail = () => {
+    if (!lines || !total) return;
+    const entries = Object.entries(purchaseItems).filter(([, item]) => item.quantity > 0);
+    if (!entries.length) {
+      lines.innerHTML = '<div class="empty" style="color:#cbbdb5">Agrega productos para comenzar</div>';
+      total.textContent = purchaseMoney(0);
+      return;
+    }
+    lines.innerHTML = entries.map(([key, item]) => `<div class="receipt-line"><div><b>${item.product} · ${item.presentation}</b><br><small>${purchaseMoney(item.unitCost)} c/u · ${item.quantity} unidades</small><div class="qty"><button class="qty-btn" data-purchase-dec="${key}">−</button><span>${item.quantity}</span><button class="qty-btn" data-purchase-inc="${key}">+</button><button class="remove-line" data-purchase-remove="${key}">Quitar</button></div></div><b>${purchaseMoney(item.unitCost * item.quantity)}</b></div>`).join('');
+    total.textContent = purchaseMoney(entries.reduce((sum, [, item]) => sum + item.unitCost * item.quantity, 0));
+  };
+  const addPurchaseItem = (product, presentation, quantity = 1) => {
+    const key = itemKey(product, presentation);
+    purchaseItems[key] = purchaseItems[key] || { product, presentation, unitCost: getPurchaseCost(product, presentation), quantity: 0 };
+    purchaseItems[key].quantity += quantity;
+    renderPurchaseDetail();
+  };
+  document.querySelector('#addPurchaseDetail')?.addEventListener('click', event => {
+    event.preventDefault();
+    addPurchaseItem(
+      document.querySelector('#purchaseCoffee')?.value || '',
+      document.querySelector('#purchasePresentation')?.value || '',
+      Number(document.querySelector('#purchaseQuantity')?.value || 1)
+    );
+    showToast('Producto agregado al detalle de compra');
+  });
+  document.addEventListener('click', event => {
+    const inc = event.target.closest('[data-purchase-inc]');
+    const dec = event.target.closest('[data-purchase-dec]');
+    const remove = event.target.closest('[data-purchase-remove]');
+    if (inc && purchaseItems[inc.dataset.purchaseInc]) {
+      purchaseItems[inc.dataset.purchaseInc].quantity += 1;
+      renderPurchaseDetail();
+    }
+    if (dec && purchaseItems[dec.dataset.purchaseDec]) {
+      const key = dec.dataset.purchaseDec;
+      purchaseItems[key].quantity = Math.max(0, purchaseItems[key].quantity - 1);
+      if (!purchaseItems[key].quantity) delete purchaseItems[key];
+      renderPurchaseDetail();
+    }
+    if (remove) {
+      delete purchaseItems[remove.dataset.purchaseRemove];
+      renderPurchaseDetail();
+    }
+  });
+  document.querySelector('#clearPurchase')?.addEventListener('click', event => {
+    event.preventDefault();
+    if (!Object.keys(purchaseItems).length) return showToast('La compra ya está vacía');
+    Object.keys(purchaseItems).forEach(key => delete purchaseItems[key]);
+    renderPurchaseDetail();
+    showToast('Compra vaciada');
+  });
+  document.querySelector('#savePurchase')?.addEventListener('click', event => {
+    event.preventDefault();
+    if (!Object.keys(purchaseItems).length) return showToast('Agrega al menos un producto');
+    Object.keys(purchaseItems).forEach(key => delete purchaseItems[key]);
+    renderPurchaseDetail();
+    showToast('Compra guardada correctamente');
+  });
+  ['#purchaseCoffee', '#purchasePresentation', '#purchaseQuantity'].forEach(selector => {
+    document.querySelector(selector)?.addEventListener('change', updatePurchaseCost);
+  });
+  updatePurchaseCost();
+  renderPurchaseDetail();
+})();
+</script>
+<script>
+(() => {
+  const input = document.querySelector('#paymentDate');
+  if (input && !input.value) {
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    input.value = local.toISOString().slice(0, 16);
+  }
+  const saleCode = document.querySelector('#saleCode');
+  if (saleCode) {
+    const letters = Array.from({ length: 3 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join('');
+    const numbers = String(Math.floor(1000 + Math.random() * 9000));
+    saleCode.textContent = `Venta #: ${letters}-${numbers}`;
+  }
+  const purchaseDate = document.querySelector('#purchaseDate');
+  if (purchaseDate && !purchaseDate.value) {
+    const now = new Date();
+    const local = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    purchaseDate.value = local.toISOString().slice(0, 16);
+  }
+  const purchaseCode = document.querySelector('#purchaseCode');
+  if (purchaseCode) {
+    const letters = Array.from({ length: 3 }, () => String.fromCharCode(65 + Math.floor(Math.random() * 26))).join('');
+    const numbers = String(Math.floor(1000 + Math.random() * 9000));
+    purchaseCode.textContent = `Compra #: ${letters}-${numbers}`;
+  }
+})();
+</script>
+<script>
+(() => {
+  const pendingSales = [
+    { code: 'VEN-0031', client: 'Café Central', balance: 35, saleDate: '2026-09-11' },
+    { code: 'VEN-0028', client: 'Ana Rodríguez', balance: 38, saleDate: '2026-09-04' },
+    { code: 'VEN-0024', client: 'Café Central', balance: 69, saleDate: '2026-08-29' }
+  ];
+  const money = value => '$' + value.toFixed(2);
+  const defaultFormHtml = document.querySelector('#form')?.innerHTML || '';
+  const closeCobroModal = () => document.querySelector('#modal')?.classList.remove('open');
+  const restoreGenericForm = () => {
+    const form = document.querySelector('#form');
+    if (!form || form.innerHTML === defaultFormHtml) return;
+    form.innerHTML = defaultFormHtml;
+    document.querySelector('#cancel')?.addEventListener('click', closeCobroModal);
+    form.onsubmit = event => {
+      event.preventDefault();
+      closeCobroModal();
+      showToast('Registro guardado correctamente');
+      event.target.reset();
+    };
+  };
+  const syncCobroFields = () => {
+    const sale = pendingSales.find(x => x.code === document.querySelector('#cobroSaleCode')?.value) || pendingSales[0];
+    const client = document.querySelector('#cobroClient');
+    const saleDate = document.querySelector('#cobroSaleDate');
+    const balance = document.querySelector('#cobroBalance');
+    const amount = document.querySelector('#cobroAmount');
+    if (client) client.value = sale.client;
+    if (saleDate) saleDate.value = sale.saleDate;
+    if (balance) balance.value = money(sale.balance);
+    if (amount) {
+      amount.max = sale.balance;
+      amount.placeholder = money(sale.balance);
+    }
+  };
+  const openCobroModal = () => {
+    const modal = document.querySelector('#modal');
+    const title = document.querySelector('#modalTitle');
+    const form = document.querySelector('#form');
+    if (!modal || !title || !form) return;
+    title.textContent = 'Nuevo: Cobro';
+    form.innerHTML = `
+      <div class="field full"><label>Factura con saldo</label><select id="cobroSaleCode">${pendingSales.map(s => `<option value="${s.code}">${s.code} - ${s.client} - saldo ${money(s.balance)}</option>`).join('')}</select></div>
+      <div class="field"><label>Cliente</label><input id="cobroClient" readonly></div>
+      <div class="field"><label>Fecha de la venta</label><input id="cobroSaleDate" type="date" readonly></div>
+      <div class="field"><label>Saldo pendiente</label><input id="cobroBalance" readonly></div>
+      <div class="field"><label>Monto a aplicar</label><input id="cobroAmount" type="number" min="0" step="0.01"></div>
+      <div class="field"><label>Forma de pago</label><select>${window.paymentMethodOptionsHtml?.() || ''}</select></div>
+      <div class="field full"><label>Referencia o notas</label><input placeholder="Número de recibo, banco o comentario"></div>
+      <div class="actions"><button type="button" class="secondary" id="cancelCobro">Cancelar</button><button class="primary">Aplicar cobro</button></div>`;
+    form.onsubmit = event => {
+      event.preventDefault();
+      closeCobroModal();
+      showToast('Cobro aplicado al saldo de la venta');
+    };
+    document.querySelector('#cobroSaleCode')?.addEventListener('change', syncCobroFields);
+    document.querySelector('#cancelCobro')?.addEventListener('click', closeCobroModal);
+    syncCobroFields();
+    modal.classList.add('open');
+  };
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-form="Cobro"]');
+    if (!button) {
+      if (event.target.closest('.add')) restoreGenericForm();
+      return;
+    }
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openCobroModal();
+  }, true);
+})();
+</script>
+<script>
+(() => {
+  const dateFrom = document.querySelector('#accountDateFrom');
+  const dateTo = document.querySelector('#accountDateTo');
+  const saleType = document.querySelector('#accountSaleType');
+  const rows = () => [...document.querySelectorAll('#estadoCuenta tbody tr[data-date]')];
+  const applyAccountFilters = () => {
+    const from = dateFrom?.value || '';
+    const to = dateTo?.value || '';
+    const type = saleType?.value || 'todos';
+    rows().forEach(row => {
+      const rowDate = row.dataset.date;
+      const rowType = row.dataset.type;
+      const visible = (!from || rowDate >= from) && (!to || rowDate <= to) && (type === 'todos' || rowType === type);
+      row.style.display = visible ? '' : 'none';
+    });
+  };
+  [dateFrom, dateTo, saleType].forEach(control => control?.addEventListener('change', applyAccountFilters));
+})();
+</script>
+<script>
+(() => {
+  const pendingPurchases = [
+    { code: 'COM-0018', supplier: 'Finca La Montaña', balance: 50, purchaseDate: '2026-09-10' },
+    { code: 'COM-0016', supplier: 'Finca La Montaña', balance: 42, purchaseDate: '2026-08-15' },
+    { code: 'COM-0015', supplier: 'Café Altura', balance: 27.5, purchaseDate: '2026-08-08' }
+  ];
+  const money = value => '$' + value.toFixed(2);
+  const defaultFormHtml = document.querySelector('#form')?.innerHTML || '';
+  const closePagoModal = () => document.querySelector('#modal')?.classList.remove('open');
+  const restoreGenericForm = () => {
+    const form = document.querySelector('#form');
+    if (!form || form.innerHTML === defaultFormHtml) return;
+    form.innerHTML = defaultFormHtml;
+    document.querySelector('#cancel')?.addEventListener('click', closePagoModal);
+    form.onsubmit = event => {
+      event.preventDefault();
+      closePagoModal();
+      showToast('Registro guardado correctamente');
+      event.target.reset();
+    };
+  };
+  const syncPagoFields = () => {
+    const purchase = pendingPurchases.find(x => x.code === document.querySelector('#pagoPurchaseCode')?.value) || pendingPurchases[0];
+    const supplier = document.querySelector('#pagoSupplier');
+    const purchaseDate = document.querySelector('#pagoPurchaseDate');
+    const balance = document.querySelector('#pagoBalance');
+    const amount = document.querySelector('#pagoAmount');
+    if (supplier) supplier.value = purchase.supplier;
+    if (purchaseDate) purchaseDate.value = purchase.purchaseDate;
+    if (balance) balance.value = money(purchase.balance);
+    if (amount) {
+      amount.max = purchase.balance;
+      amount.placeholder = money(purchase.balance);
+    }
+  };
+  const openPagoModal = () => {
+    const modal = document.querySelector('#modal');
+    const title = document.querySelector('#modalTitle');
+    const form = document.querySelector('#form');
+    if (!modal || !title || !form) return;
+    title.textContent = 'Nuevo: Pago a proveedor';
+    form.innerHTML = `
+      <div class="field full"><label>Compra con saldo</label><select id="pagoPurchaseCode">${pendingPurchases.map(p => `<option value="${p.code}">${p.code} - ${p.supplier} - saldo ${money(p.balance)}</option>`).join('')}</select></div>
+      <div class="field"><label>Proveedor</label><input id="pagoSupplier" readonly></div>
+      <div class="field"><label>Fecha de la compra</label><input id="pagoPurchaseDate" type="date" readonly></div>
+      <div class="field"><label>Saldo pendiente</label><input id="pagoBalance" readonly></div>
+      <div class="field"><label>Monto a pagar</label><input id="pagoAmount" type="number" min="0" step="0.01"></div>
+      <div class="field"><label>Forma de pago</label><select>${window.paymentMethodOptionsHtml?.() || ''}</select></div>
+      <div class="field full"><label>Referencia o notas</label><input placeholder="Número de comprobante, banco o comentario"></div>
+      <div class="actions"><button type="button" class="secondary" id="cancelPago">Cancelar</button><button class="primary">Aplicar pago</button></div>`;
+    form.onsubmit = event => {
+      event.preventDefault();
+      closePagoModal();
+      showToast('Pago aplicado al saldo de la compra');
+    };
+    document.querySelector('#pagoPurchaseCode')?.addEventListener('change', syncPagoFields);
+    document.querySelector('#cancelPago')?.addEventListener('click', closePagoModal);
+    syncPagoFields();
+    modal.classList.add('open');
+  };
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-form="Pago a proveedor"]');
+    if (!button) {
+      if (event.target.closest('.add')) restoreGenericForm();
+      return;
+    }
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    openPagoModal();
+  }, true);
+})();
+</script>
+<script>
+(() => {
+  const pageForm = document.querySelector('#presentationForm');
+  const closeModal = () => document.querySelector('#modal')?.classList.remove('open');
+  const addPresentationOption = name => {
+    ['#purchasePresentation', '#presentationSelect'].forEach(selector => {
+      const select = document.querySelector(selector);
+      if (!select || [...select.options].some(option => option.value.toLowerCase() === name.toLowerCase())) return;
+      select.insertAdjacentHTML('beforeend', `<option>${name}</option>`);
+    });
+    if (typeof products !== 'undefined' && typeof saleCoffees !== 'undefined' && typeof saleBasePrices !== 'undefined') {
+      saleCoffees.forEach((coffee, index) => {
+        const exists = products.some(product => product.coffee === coffee && product.presentation.toLowerCase() === name.toLowerCase());
+        if (exists) return;
+        const slug = (coffee + ' ' + name).normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        products.push({ id: slug, coffee, presentation: name, sku: `${coffee.replace('Café ', 'CAF-')}-${name.toUpperCase().replace(/\s+/g, '-')}`, price: saleBasePrices[coffee] || 5, stock: 20 + index * 4, max: 70 });
+      });
+    }
+  };
+  const addPresentationRow = (name, description) => {
+    document.querySelector('#presentationList')?.insertAdjacentHTML('beforeend', `<tr><td>${name}</td><td>${description}</td><td><span class="badge">Activo</span></td></tr>`);
+    addPresentationOption(name);
+  };
+  pageForm?.addEventListener('submit', event => {
+    event.preventDefault();
+    const name = document.querySelector('#presentationName')?.value.trim();
+    const description = document.querySelector('#presentationDescription')?.value.trim();
+    if (name && description) addPresentationRow(name, description);
+    showToast('Presentación guardada correctamente');
+    pageForm.reset();
+  });
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-presentation-modal]');
+    if (!button) return;
+    event.preventDefault();
+    const modal = document.querySelector('#modal');
+    const title = document.querySelector('#modalTitle');
+    const form = document.querySelector('#form');
+    if (!modal || !title || !form) return;
+    title.textContent = 'Registrar presentación';
+    form.innerHTML = `
+      <label class="field full"><span>Nombre</span><input id="modalPresentationName" type="text" placeholder="Ej. 1 libra" required></label>
+      <label class="field full"><span>Descripción</span><textarea id="modalPresentationDescription" placeholder="Detalle de la presentación" required></textarea></label>
+      <div class="actions"><button type="button" class="secondary" id="cancelPresentationModal">Cancelar</button><button class="primary">Guardar</button></div>`;
+    document.querySelector('#cancelPresentationModal')?.addEventListener('click', closeModal);
+    form.onsubmit = submitEvent => {
+      submitEvent.preventDefault();
+      const name = document.querySelector('#modalPresentationName')?.value.trim();
+      const description = document.querySelector('#modalPresentationDescription')?.value.trim();
+      if (name && description) addPresentationRow(name, description);
+      closeModal();
+      showToast('Presentación guardada correctamente');
+      form.reset();
+    };
+    modal.classList.add('open');
+  });
+})();
+</script>
+<script>
+(() => {
+  const closeModal = () => document.querySelector('#modal')?.classList.remove('open');
+  const addPaymentMethod = (name, usage) => {
+    const exists = paymentMethods.some(method => method.name.toLowerCase() === name.toLowerCase());
+    if (exists) return showToast('La forma de pago ya existe');
+    paymentMethods.push({ name, usage: usage || 'Uso general', active: true });
+    renderPaymentMethods();
+    showToast('Forma de pago creada correctamente');
+  };
+  document.addEventListener('click', event => {
+    const toggle = event.target.closest('[data-payment-toggle]');
+    if (!toggle) return;
+    const method = paymentMethods[Number(toggle.dataset.paymentToggle)];
+    if (!method) return;
+    method.active = !method.active;
+    renderPaymentMethods();
+    showToast(`${method.name} ${method.active ? 'activada' : 'desactivada'}`);
+  });
+  document.addEventListener('click', event => {
+    const button = event.target.closest('[data-payment-modal]');
+    if (!button) return;
+    event.preventDefault();
+    const modal = document.querySelector('#modal');
+    const title = document.querySelector('#modalTitle');
+    const form = document.querySelector('#form');
+    if (!modal || !title || !form) return;
+    title.textContent = 'Crear forma de pago';
+    form.innerHTML = `
+      <label class="field full"><span>Nombre</span><input id="modalPaymentName" type="text" placeholder="Ej. ACH" required></label>
+      <label class="field full"><span>Uso sugerido</span><input id="modalPaymentUsage" type="text" placeholder="Ej. Transferencias bancarias locales"></label>
+      <div class="actions"><button type="button" class="secondary" id="cancelPaymentModal">Cancelar</button><button class="primary">Guardar</button></div>`;
+    document.querySelector('#cancelPaymentModal')?.addEventListener('click', closeModal);
+    form.onsubmit = submitEvent => {
+      submitEvent.preventDefault();
+      const name = document.querySelector('#modalPaymentName')?.value.trim();
+      const usage = document.querySelector('#modalPaymentUsage')?.value.trim();
+      if (name) addPaymentMethod(name, usage);
+      closeModal();
+      form.reset();
+    };
+    modal.classList.add('open');
+  });
+  renderPaymentMethods();
+})();
+</script>
+</body></html>
